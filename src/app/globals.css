@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+:root {
+  --brand: #4f46e5;
+}
+
+html, body {
+  min-height: 100%;
+}
+
+body {
+  background: radial-gradient(1200px 600px at 10% -10%, #eef2ff 0%, transparent 60%),
+              radial-gradient(1000px 500px at 100% 0%, #fdf2f8 0%, transparent 60%),
+              #f8fafc;
+}
+
+.band-pill {
+  @apply inline-flex items-center justify-center rounded-full px-3 py-1 text-sm font-semibold;
+}
