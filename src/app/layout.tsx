@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { getLoggedUser, logoutUser } from "@/lib/user-auth";
 import { redirect } from "next/navigation";
+import { MobileNav } from "@/components/MobileNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -32,7 +33,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang="en">
       <body className="text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
-        <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl">
+        <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
             <Link href="/" className="group flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-pink-600 text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
@@ -44,7 +45,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               </div>
             </Link>
 
-            <nav className="flex flex-wrap items-center gap-1 sm:gap-2">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-1.5">
               {NAV.map((n) => (
                 <Link
                   key={n.href}
@@ -82,11 +84,14 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   Sign In →
                 </Link>
               )}
+
+              {/* Mobile Menu Toggle */}
+              <MobileNav />
             </div>
           </div>
         </header>
 
-        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">{children}</main>
+        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>
 
         <footer className="border-t border-slate-200/85 bg-white/50 backdrop-blur-sm mt-16">
           <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
