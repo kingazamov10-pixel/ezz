@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { db } from "@/db";
-import { attempts, appSettings } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
-import { readEnv } from "@/lib/env";
+import { attempts } from "@/db/schema";
+import { desc } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -59,23 +58,18 @@ const SECTIONS = [
 
 export default async function HomePage() {
   let recent: (typeof attempts.$inferSelect)[] = [];
-  let hasGemini = true;
 
   try {
-    const [recentRows, [dbGemini]] = await Promise.all([
-      db.select().from(attempts).orderBy(desc(attempts.createdAt)).limit(4).catch(() => []),
-      db.select().from(appSettings).where(eq(appSettings.key, "GEMINI_API_KEY")).limit(1).catch(() => []),
-    ]);
+    const recentRows = await db
+      .select()
+      .from(attempts)
+      .orderBy(desc(attempts.createdAt))
+      .limit(4)
+      .catch(() => []);
     recent = recentRows;
-    const envGemini = readEnv("GEMINI_API_KEY") || readEnv("GOOGLE_API_KEY");
-    hasGemini = !!(envGemini || dbGemini?.value?.trim());
   } catch {
-    // Graceful fallback if database is unreachable
+    // Graceful fallback
   }
-
-  const aiEngine = hasGemini
-    ? { label: "Google Gemini AI Active", icon: "✨", tone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" }
-    : { label: "AI Active via Supabase", icon: "🔷", tone: "bg-blue-500/20 text-blue-300 border-blue-500/30" };
 
   return (
     <div className="space-y-12 pb-12">
@@ -116,16 +110,6 @@ export default async function HomePage() {
             >
               ✍️ Try AI Writing Lab
             </Link>
-          </div>
-
-          <div className="mt-8 flex flex-wrap items-center gap-3 pt-6 border-t border-white/10">
-            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium border backdrop-blur-sm ${aiEngine.tone}`}>
-              <span>{aiEngine.icon}</span>
-              <span>{aiEngine.label}</span>
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-medium border border-white/10">
-              <span>⚡ Supabase Cloud DB Connected</span>
-            </div>
           </div>
         </div>
       </section>
