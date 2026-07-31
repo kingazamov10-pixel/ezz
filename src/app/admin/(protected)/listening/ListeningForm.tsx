@@ -1,5 +1,10 @@
+"type client";
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { saveListening } from "@/app/admin/actions";
+import type { Question } from "@/lib/ielts-data";
 
 type Row = {
   id: number;
@@ -10,104 +15,268 @@ type Row = {
   isActive: boolean;
 };
 
-const SAMPLE = `[
-  {
-    "id": "L1",
-    "type": "fill",
-    "question": "The student's name is __________",
-    "answer": "anna",
-    "acceptable": ["anna petrov"]
-  },
-  {
-    "id": "L2",
-    "type": "mcq",
-    "question": "Which course did she choose?",
-    "options": ["Business", "General English", "IELTS", "Academic"],
-    "answer": 1
-  },
-  {
-    "id": "L3",
-    "type": "tfng",
-    "question": "The course lasts 12 weeks.",
-    "answer": "TRUE"
-  }
-]`;
-
 export function ListeningForm({ row }: { row?: Row }) {
-  const questionsJson = row?.questions ? JSON.stringify(row.questions, null, 2) : SAMPLE;
+  const initialQuestions: Question[] = Array.isArray(row?.questions)
+    ? (row.questions as Question[])
+    : [
+        {
+          id: "L1",
+          type: "fill",
+          question: "The student's name is __________",
+          answer: "anna",
+          acceptable: ["anna petrov"],
+        },
+        {
+          id: "L2",
+          type: "mcq",
+          question: "Which course did she choose?",
+          options: ["Business", "General English", "IELTS", "Academic"],
+          answer: 1,
+        },
+      ];
+
+  const [questions, setQuestions] = useState<Question[]>(initialQuestions);
+
+  function addQuestion(type: "mcq" | "fill" | "tfng") {
+    const id = `L${questions.length + 1}`;
+    if (type === "mcq") {
+      setQuestions([
+        ...questions,
+        { id, type: "mcq", question: "", options: ["Option A", "Option B", "Option C", "Option D"], answer: 0 },
+      ]);
+    } else if (type === "fill") {
+      setQuestions([
+        ...questions,
+        { id, type: "fill", question: "", answer: "", acceptable: [] },
+      ]);
+    } else {
+      setQuestions([
+        ...questions,
+        { id, type: "tfng", question: "", answer: "TRUE" },
+      ]);
+    }
+  }
+
+  function updateQuestion(index: number, updated: Question) {
+    const copy = [...questions];
+    copy[index] = updated;
+    setQuestions(copy);
+  }
+
+  function removeQuestion(index: number) {
+    setQuestions(questions.filter((_, i) => i !== index));
+  }
+
   return (
-    <form action={saveListening} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form action={saveListening} className="space-y-6">
       {row?.id && <input type="hidden" name="id" value={row.id} />}
-      <div>
-        <label className="mb-1 block text-xs font-semibold text-slate-700">Title *</label>
-        <input
-          name="title"
-          required
-          defaultValue={row?.title ?? ""}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
-          placeholder="Section 1 — Booking a Language Course"
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-xs font-semibold text-slate-700">
-          Intro (short description shown to students)
+      {/* Hidden input storing final JSON */}
+      <input type="hidden" name="questions" value={JSON.stringify(questions)} />
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <h2 className="text-lg font-bold text-slate-900">General Information</h2>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-slate-700">Title *</label>
+          <input
+            name="title"
+            required
+            defaultValue={row?.title ?? ""}
+            className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
+            placeholder="Section 1 — Booking a Language Course"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-slate-700">Intro / Instructions</label>
+          <textarea
+            name="intro"
+            rows={2}
+            defaultValue={row?.intro ?? ""}
+            className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
+            placeholder="You will hear a conversation between..."
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-slate-700">
+            Transcript * (Spoken via browser TTS)
+          </label>
+          <textarea
+            name="transcript"
+            required
+            rows={8}
+            defaultValue={row?.transcript ?? ""}
+            className="w-full rounded-xl border border-slate-300 p-3.5 font-mono text-xs focus:border-sky-500 focus:outline-none"
+            placeholder="Speaker A: Good morning...&#10;Speaker B: Hi, I'd like to..."
+          />
+        </div>
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+          <input
+            type="checkbox"
+            name="isActive"
+            defaultChecked={row?.isActive ?? true}
+            className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+          />
+          Active (shown to students)
         </label>
-        <textarea
-          name="intro"
-          rows={2}
-          defaultValue={row?.intro ?? ""}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
-          placeholder="You will hear a conversation between..."
-        />
       </div>
-      <div>
-        <label className="mb-1 block text-xs font-semibold text-slate-700">
-          Transcript * (played via browser TTS)
-        </label>
-        <textarea
-          name="transcript"
-          required
-          rows={10}
-          defaultValue={row?.transcript ?? ""}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-xs focus:border-sky-500 focus:outline-none"
-          placeholder="Speaker A: Good morning...&#10;Speaker B: Hi, I'd like to..."
-        />
+
+      {/* Visual Question Builder */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">Questions Builder</h2>
+            <p className="text-xs text-slate-500">Add and configure test questions visually below.</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => addQuestion("mcq")}
+              className="rounded-xl bg-sky-50 px-3 py-1.5 text-xs font-bold text-sky-700 hover:bg-sky-100 transition-colors"
+            >
+              + Multiple Choice
+            </button>
+            <button
+              type="button"
+              onClick={() => addQuestion("fill")}
+              className="rounded-xl bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition-colors"
+            >
+              + Fill in Blank
+            </button>
+            <button
+              type="button"
+              onClick={() => addQuestion("tfng")}
+              className="rounded-xl bg-purple-50 px-3 py-1.5 text-xs font-bold text-purple-700 hover:bg-purple-100 transition-colors"
+            >
+              + True / False / NG
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {questions.map((q, idx) => (
+            <div key={q.id || idx} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-2 rounded-full bg-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
+                  Question #{idx + 1} ({q.type.toUpperCase()})
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeQuestion(idx)}
+                  className="text-xs font-semibold text-rose-600 hover:text-rose-800"
+                >
+                  🗑 Remove
+                </button>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-700">Question Text *</label>
+                <input
+                  type="text"
+                  required
+                  value={q.question}
+                  onChange={(e) => updateQuestion(idx, { ...q, question: e.target.value })}
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
+                  placeholder="e.g. The course starts in ______."
+                />
+              </div>
+
+              {q.type === "mcq" && (
+                <div className="space-y-3">
+                  <label className="block text-xs font-semibold text-slate-700">Options & Correct Answer</label>
+                  {q.options.map((opt, oIdx) => (
+                    <div key={oIdx} className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name={`correct-${idx}`}
+                        checked={q.answer === oIdx}
+                        onChange={() => updateQuestion(idx, { ...q, answer: oIdx })}
+                        title="Mark as correct answer"
+                        className="h-4 w-4 text-sky-600 focus:ring-sky-500"
+                      />
+                      <input
+                        type="text"
+                        required
+                        value={opt}
+                        onChange={(e) => {
+                          const newOpts = [...q.options];
+                          newOpts[oIdx] = e.target.value;
+                          updateQuestion(idx, { ...q, options: newOpts });
+                        }}
+                        className="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-sm focus:border-sky-500 focus:outline-none"
+                        placeholder={`Option ${String.fromCharCode(65 + oIdx)}`}
+                      />
+                    </div>
+                  ))}
+                  <p className="text-[11px] text-slate-500">Select the radio button next to the correct option.</p>
+                </div>
+              )}
+
+              {q.type === "fill" && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-slate-700">Canonical Answer *</label>
+                    <input
+                      type="text"
+                      required
+                      value={q.answer}
+                      onChange={(e) => updateQuestion(idx, { ...q, answer: e.target.value })}
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
+                      placeholder="e.g. 15th"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-slate-700">Acceptable Synonyms (comma separated)</label>
+                    <input
+                      type="text"
+                      value={(q.acceptable ?? []).join(", ")}
+                      onChange={(e) =>
+                        updateQuestion(idx, {
+                          ...q,
+                          acceptable: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                        })
+                      }
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
+                      placeholder="e.g. 15, fifteenth"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {q.type === "tfng" && (
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">Correct Answer *</label>
+                  <select
+                    value={q.answer}
+                    onChange={(e) =>
+                      updateQuestion(idx, {
+                        ...q,
+                        answer: e.target.value as "TRUE" | "FALSE" | "NOT GIVEN",
+                      })
+                    }
+                    className="w-48 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
+                  >
+                    <option value="TRUE">TRUE</option>
+                    <option value="FALSE">FALSE</option>
+                    <option value="NOT GIVEN">NOT GIVEN</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
-      <div>
-        <label className="mb-1 block text-xs font-semibold text-slate-700">Questions (JSON) *</label>
-        <p className="mb-1 text-[11px] text-slate-500">
-          Array of question objects. Types: <code>mcq</code>, <code>fill</code>,{" "}
-          <code>tfng</code>. Each needs a unique <code>id</code>.
-        </p>
-        <textarea
-          name="questions"
-          required
-          rows={14}
-          defaultValue={questionsJson}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-xs focus:border-sky-500 focus:outline-none"
-        />
-      </div>
-      <label className="flex items-center gap-2 text-sm text-slate-700">
-        <input
-          type="checkbox"
-          name="isActive"
-          defaultChecked={row?.isActive ?? true}
-          className="h-4 w-4"
-        />
-        Active (shown to students)
-      </label>
-      <div className="flex justify-end gap-2">
+
+      <div className="flex justify-end gap-3 pt-2">
         <Link
           href="/admin/listening"
-          className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
         >
           Cancel
         </Link>
         <button
           type="submit"
-          className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-700"
+          className="rounded-xl bg-sky-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-600/25 hover:bg-sky-700 transition-colors"
         >
-          {row?.id ? "Save changes" : "Create"}
+          {row?.id ? "Save Changes" : "Create Test"}
         </button>
       </div>
     </form>
