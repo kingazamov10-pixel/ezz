@@ -19,10 +19,8 @@ export function FeedbackPanel({ feedback }: { feedback: AIFeedback }) {
                 Feedback engine:{" "}
                 <span className="font-mono">
                   {feedback.provider === "gemini"
-                    ? "🔷 Google Gemini"
-                    : feedback.provider === "openai"
-                      ? "🤖 OpenAI GPT-4o"
-                      : "🧠 Heuristic IELTS engine"}
+                    ? "🔷 Google Gemini AI"
+                    : "🧠 Heuristic IELTS engine"}
                 </span>
               </p>
             </div>
