@@ -4,19 +4,18 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "IELTS Simulator Pro — 4 Sections with AI Feedback",
+  title: "IELTS Pro Simulator — 4 Sections with AI Feedback",
   description:
     "Complete IELTS practice test: Listening, Reading, Writing, and Speaking with AI-powered feedback and band scoring.",
 };
 
 const NAV = [
-  { href: "/", label: "Home" },
-  { href: "/listening", label: "🎧 Listening" },
-  { href: "/reading", label: "Reading" },
-  { href: "/writing", label: "Writing" },
-  { href: "/speaking", label: "Speaking" },
-  { href: "/results", label: "Results" },
-  { href: "/admin", label: "👑 Admin" },
+  { href: "/", label: "Home", icon: "🏠" },
+  { href: "/listening", label: "Listening", icon: "🎧" },
+  { href: "/reading", label: "Reading", icon: "📖" },
+  { href: "/writing", label: "Writing", icon: "✍️" },
+  { href: "/speaking", label: "Speaking", icon: "🎤" },
+  { href: "/results", label: "Results", icon: "📊" },
 ];
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -39,9 +38,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <Link
                   key={n.href}
                   href={n.href}
-                  className="rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-100/85 hover:text-indigo-600"
+                  className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-100/85 hover:text-indigo-600"
                 >
-                  {n.label}
+                  <span className="text-base">{n.icon}</span>
+                  <span>{n.label}</span>
                 </Link>
               ))}
             </nav>
