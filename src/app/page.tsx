@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { db } from "@/db";
 import { attempts } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
+import { getLoggedUser } from "@/lib/user-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -57,18 +58,21 @@ const SECTIONS = [
 ];
 
 export default async function HomePage() {
-  let recent: (typeof attempts.$inferSelect)[] = [];
+  const user = await getLoggedUser();
+  let userRecent: (typeof attempts.$inferSelect)[] = [];
 
-  try {
-    const recentRows = await db
-      .select()
-      .from(attempts)
-      .orderBy(desc(attempts.createdAt))
-      .limit(4)
-      .catch(() => []);
-    recent = recentRows;
-  } catch {
-    // Graceful fallback
+  if (user) {
+    try {
+      userRecent = await db
+        .select()
+        .from(attempts)
+        .where(eq(attempts.userEmail, user.email))
+        .orderBy(desc(attempts.createdAt))
+        .limit(4)
+        .catch(() => []);
+    } catch {
+      // Fallback
+    }
   }
 
   return (
@@ -166,20 +170,20 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Recent Attempts */}
-      {recent.length > 0 && (
+      {/* User's Own Recent Attempts (Only shown if signed in and has history) */}
+      {user && userRecent.length > 0 && (
         <section className="space-y-4 pt-4">
           <div className="flex items-baseline justify-between">
             <div>
-              <p className="text-xs uppercase tracking-widest text-indigo-600 font-bold">History & Progress</p>
-              <h2 className="text-2xl font-bold text-slate-900 mt-1">Recent Student Attempts</h2>
+              <p className="text-xs uppercase tracking-widest text-indigo-600 font-bold">Your Progress</p>
+              <h2 className="text-2xl font-bold text-slate-900 mt-1">Your Recent Attempts</h2>
             </div>
             <Link href="/results" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline">
               View all results →
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {recent.map((a) => (
+            {userRecent.map((a) => (
               <div key={a.id} className="glass-card rounded-2xl p-5 shadow-sm flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
