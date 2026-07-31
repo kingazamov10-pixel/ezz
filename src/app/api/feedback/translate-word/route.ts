@@ -33,11 +33,16 @@ export async function POST(request: Request) {
     });
   }
 
-  const systemPrompt = `You are a helpful IELTS vocabulary tutor. Provide a concise, clear definition of the given word/phrase in English, and its translation/meaning in Uzbek. Keep it under 2 sentences.`;
-  const userPrompt = `Word/Phrase: "${body.word}"
-Context sentence: "${body.context}"
+  const systemPrompt = `You are an expert bilingual IELTS vocabulary tutor. For the given word or phrase, provide:
+1. Short definition in English.
+2. Translation in Uzbek (O'zbekcha tarjimasi).
+3. Translation in Russian (Перевод на русский язык).
+Keep the response concise, formatted cleanly in 2-3 short lines.`;
 
-Provide definition and meaning.`;
+  const userPrompt = `Word/Phrase: "${body.word}"
+Context: "${body.context}"
+
+Provide definition, Uzbek translation, and Russian translation.`;
 
   try {
     const res = await fetch(
