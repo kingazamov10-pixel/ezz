@@ -1,8 +1,9 @@
 import { db } from "@/db";
 import { attempts } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { BandBadge } from "@/components/BandBadge";
 import Link from "next/link";
+import { getLoggedUser } from "@/lib/user-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +15,20 @@ const SECTION_META: Record<string, { icon: string; color: string; href: string }
 };
 
 export default async function ResultsPage() {
-  const rows = await db
-    .select()
-    .from(attempts)
-    .orderBy(desc(attempts.createdAt))
-    .limit(100);
+  const user = await getLoggedUser();
+
+  const rows = user
+    ? await db
+        .select()
+        .from(attempts)
+        .where(eq(attempts.userEmail, user.email))
+        .orderBy(desc(attempts.createdAt))
+        .limit(100)
+    : await db
+        .select()
+        .from(attempts)
+        .orderBy(desc(attempts.createdAt))
+        .limit(100);
 
   // Aggregate averages per section
   const bySection: Record<string, { total: number; sum: number }> = {};
@@ -36,76 +46,106 @@ export default async function ResultsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">📊 Your Results</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Every attempt is stored and scored. Aim for an overall band of at least 6.5 for
-          undergraduate study, or 7.0+ for competitive programmes.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">📊 Your Results & History</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            {user ? (
+              <>Showing attempts registered to <span className="font-bold text-indigo-600">{user.email}</span></>
+            ) : (
+              <>Sign in to track your personal test results and progress history.</>
+            )}
+          </p>
+        </div>
+        {!user && (
+          <Link
+            href="/auth/login?redirect=/results"
+            className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700"
+          >
+            Sign In to View Your Results →
+          </Link>
+        )}
       </div>
 
       {rows.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
-          <p className="text-slate-600">No attempts yet.</p>
-          <Link
-            href="/"
-            className="mt-4 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
-          >
-            Start a section
-          </Link>
+        <div className="glass-card rounded-3xl p-12 text-center border border-slate-200">
+          <span className="text-4xl mb-3 block">📝</span>
+          <h2 className="text-lg font-bold text-slate-900">No test attempts found</h2>
+          <p className="mt-1 text-sm text-slate-500 max-w-md mx-auto">
+            {user
+              ? "You haven't completed any practice tests yet. Start a section to record your first score!"
+              : "Sign in with your email and complete practice tests to save your score history."}
+          </p>
+          <div className="mt-6 flex justify-center gap-3">
+            <Link
+              href="/listening"
+              className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-indigo-700"
+            >
+              Start Practice Now →
+            </Link>
+          </div>
         </div>
       ) : (
         <>
-          <section className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-6 shadow-sm">
+          <section className="rounded-3xl border border-indigo-100 bg-gradient-to-br from-indigo-50/80 via-white to-indigo-50/30 p-6 sm:p-8 shadow-sm">
             <div className="flex flex-wrap items-center gap-6">
               <BandBadge band={overall} size="lg" />
               <div>
-                <p className="text-xs uppercase tracking-wide text-indigo-600">Overall average</p>
-                <p className="text-2xl font-bold text-slate-900">Band {overall.toFixed(1)}</p>
-                <p className="text-xs text-slate-500">
-                  Across {rows.length} attempts in {avgs.length} section(s)
+                <p className="text-xs uppercase tracking-wide text-indigo-600 font-bold">Overall Average Band</p>
+                <p className="text-3xl font-extrabold text-slate-900 mt-0.5">Band {overall.toFixed(1)}</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  Across {rows.length} verified attempt(s) in {avgs.length} section(s)
                 </p>
               </div>
             </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {avgs.map((a) => {
                 const meta = SECTION_META[a.section];
                 return (
-                  <div key={a.section} className="rounded-xl border border-slate-200 bg-white p-4">
-                    <p className={`text-xs uppercase tracking-wide ${meta?.color ?? ""}`}>
+                  <div key={a.section} className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+                    <p className={`text-xs uppercase tracking-wide font-bold ${meta?.color ?? ""}`}>
                       {meta?.icon} {a.section}
                     </p>
-                    <p className="mt-1 text-2xl font-bold text-slate-900">{a.avg.toFixed(1)}</p>
-                    <p className="text-[11px] text-slate-500">{a.count} attempt(s)</p>
+                    <p className="mt-2 text-2xl font-extrabold text-slate-900">{a.avg.toFixed(1)}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{a.count} attempt(s)</p>
                   </div>
                 );
               })}
             </div>
           </section>
 
-          <section>
-            <h2 className="mb-4 text-lg font-bold text-slate-900">All attempts</h2>
+          <section className="space-y-4">
+            <h2 className="text-xl font-bold text-slate-900">Attempt History</h2>
             <div className="space-y-3">
               {rows.map((r) => {
                 const meta = SECTION_META[r.section];
                 return (
                   <div
                     key={r.id}
-                    className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                    className="glass-card flex flex-wrap items-center justify-between gap-4 rounded-2xl p-5 shadow-sm"
                   >
                     <div className="flex items-center gap-4">
                       <BandBadge band={r.bandScore} />
                       <div>
-                        <p className={`text-xs uppercase tracking-wide ${meta?.color ?? ""}`}>
-                          {meta?.icon} {r.section}
-                        </p>
-                        <p className="text-sm font-semibold text-slate-900">{r.taskLabel}</p>
-                        <p className="text-[11px] text-slate-500">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs uppercase tracking-wide font-bold ${meta?.color ?? ""}`}>
+                            {meta?.icon} {r.section}
+                          </span>
+                          {r.userEmail && (
+                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-500">
+                              {r.userEmail}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm font-bold text-slate-900 mt-0.5">{r.taskLabel}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
                           {new Date(r.createdAt).toLocaleString()}
                           {r.rawScore != null && r.totalQuestions != null && (
                             <>
                               {" • "}
-                              {r.rawScore} / {r.totalQuestions} correct
+                              <span className="font-semibold text-slate-700">
+                                {r.rawScore} / {r.totalQuestions} correct
+                              </span>
                             </>
                           )}
                         </p>
@@ -114,9 +154,9 @@ export default async function ResultsPage() {
                     {meta && (
                       <Link
                         href={meta.href}
-                        className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
                       >
-                        Retake →
+                        Retake Section →
                       </Link>
                     )}
                   </div>

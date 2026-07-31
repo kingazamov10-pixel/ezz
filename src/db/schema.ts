@@ -1,8 +1,26 @@
-import { pgTable, serial, varchar, text, integer, real, jsonb, timestamp, boolean } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  varchar,
+  text,
+  integer,
+  real,
+  jsonb,
+  timestamp,
+  boolean,
+} from "drizzle-orm/pg-core";
+
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 128 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
 
 export const attempts = pgTable("attempts", {
   id: serial("id").primaryKey(),
-  section: varchar("section", { length: 32 }).notNull(),
+  userEmail: varchar("user_email", { length: 255 }), // tied to registered user email
+  section: varchar("section", { length: 32 }).notNull(), // listening | reading | writing | speaking
   taskLabel: varchar("task_label", { length: 128 }).notNull(),
   bandScore: real("band_score").notNull(),
   rawScore: integer("raw_score"),
@@ -11,6 +29,8 @@ export const attempts = pgTable("attempts", {
   feedback: jsonb("feedback").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+// ---------------- IELTS content tables (managed by admin) ----------------
 
 export const listeningTests = pgTable("listening_tests", {
   id: serial("id").primaryKey(),
@@ -54,13 +74,14 @@ export const speakingPrompts = pgTable("speaking_prompts", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// App settings table (e.g. Gemini API key stored securely in DB)
 export const appSettings = pgTable("app_settings", {
   key: varchar("key", { length: 128 }).primaryKey(),
   value: text("value").notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updated_at: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
 export type Attempt = typeof attempts.$inferSelect;
 export type NewAttempt = typeof attempts.$inferInsert;
 export type ListeningTestRow = typeof listeningTests.$inferSelect;

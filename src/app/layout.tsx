@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { getLoggedUser, logoutUser } from "@/lib/user-auth";
+import { redirect } from "next/navigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +20,15 @@ const NAV = [
   { href: "/results", label: "Results", icon: "📊" },
 ];
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+async function logoutAction() {
+  "use server";
+  await logoutUser();
+  redirect("/auth/login");
+}
+
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const user = await getLoggedUser();
+
   return (
     <html lang="en">
       <body className="text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
@@ -33,6 +43,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <p className="text-[11px] font-medium text-indigo-600">AI Simulator</p>
               </div>
             </Link>
+
             <nav className="flex flex-wrap items-center gap-1 sm:gap-2">
               {NAV.map((n) => (
                 <Link
@@ -45,6 +56,33 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 </Link>
               ))}
             </nav>
+
+            <div className="flex items-center gap-3">
+              {user ? (
+                <div className="flex items-center gap-3">
+                  <div className="hidden sm:block text-right">
+                    <p className="text-xs font-bold text-slate-900 line-clamp-1">{user.name}</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">{user.email}</p>
+                  </div>
+                  <form action={logoutAction}>
+                    <button
+                      type="submit"
+                      title="Sign out"
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all"
+                    >
+                      🚪 Sign Out
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                <Link
+                  href="/auth/login"
+                  className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 transition-all"
+                >
+                  Sign In →
+                </Link>
+              )}
+            </div>
           </div>
         </header>
 
