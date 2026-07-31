@@ -58,23 +58,29 @@ const SECTIONS = [
 ];
 
 export default async function HomePage() {
-  const [recent, [dbGemini]] = await Promise.all([
-    db.select().from(attempts).orderBy(desc(attempts.createdAt)).limit(4),
-    db.select().from(appSettings).where(eq(appSettings.key, "GEMINI_API_KEY")).limit(1),
-  ]);
+  let recent: (typeof attempts.$inferSelect)[] = [];
+  let hasGemini = true;
 
-  const envGemini = readEnv("GEMINI_API_KEY") || readEnv("GOOGLE_API_KEY");
-  const hasGemini = !!(envGemini || dbGemini?.value?.trim());
+  try {
+    const [recentRows, [dbGemini]] = await Promise.all([
+      db.select().from(attempts).orderBy(desc(attempts.createdAt)).limit(4).catch(() => []),
+      db.select().from(appSettings).where(eq(appSettings.key, "GEMINI_API_KEY")).limit(1).catch(() => []),
+    ]);
+    recent = recentRows;
+    const envGemini = readEnv("GEMINI_API_KEY") || readEnv("GOOGLE_API_KEY");
+    hasGemini = !!(envGemini || dbGemini?.value?.trim());
+  } catch {
+    // Graceful fallback if database is unreachable
+  }
 
   const aiEngine = hasGemini
-    ? { label: "Google Gemini 3.6 Flash Active", icon: "✨", tone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" }
+    ? { label: "Google Gemini AI Active", icon: "✨", tone: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" }
     : { label: "AI Active via Supabase", icon: "🔷", tone: "bg-blue-500/20 text-blue-300 border-blue-500/30" };
 
   return (
     <div className="space-y-12 pb-12">
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-violet-900 to-slate-900 p-8 text-white shadow-2xl sm:p-14">
-        {/* Decorative background glows */}
         <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
         <div className="absolute -left-20 -bottom-20 h-80 w-80 rounded-full bg-pink-500/20 blur-3xl pointer-events-none" />
 
