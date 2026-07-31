@@ -15,9 +15,9 @@ export const pool =
   globalForDb.__arenaNextJsPostgresqlPool ??
   new Pool({
     connectionString: databaseUrl,
-    ssl: databaseUrl.includes("supabase.co") || databaseUrl.includes("pooler.supabase.com")
-      ? { rejectUnauthorized: false }
-      : undefined,
+    ssl: {
+      rejectUnauthorized: false,
+    },
   });
 
 if (process.env.NODE_ENV !== "production") {
