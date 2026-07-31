@@ -77,7 +77,7 @@ export function ReadingClient({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          passage: passage.slice(0, 1500),
+          passage: passage,
           question: q.question,
           expected: detail.expected,
           given: detail.given,

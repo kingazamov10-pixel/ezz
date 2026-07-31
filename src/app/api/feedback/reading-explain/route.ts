@@ -34,18 +34,21 @@ export async function POST(request: Request) {
 
   const apiKey = await getGeminiKey();
   if (!apiKey) {
-    return NextResponse.json({ explanation: `The correct answer is "${body.expected}" based on the reading passage.` });
+    return NextResponse.json({
+      explanation: `The correct answer is "${body.expected}" based on the reading text.`,
+    });
   }
 
-  const systemPrompt = `You are an expert IELTS Reading tutor. Explain clearly in 2-3 concise sentences why the answer to the reading question is correct, referencing the context of the passage.`;
-  const userPrompt = `Passage excerpt:
+  const systemPrompt = `You are an expert IELTS Reading examiner and tutor. Provide a detailed, insightful explanation for why a reading question has a specific answer. State the correct answer clearly, quote or reference the exact sentence from the passage that proves it, and explain the logical reasoning in 3-4 professional sentences.`;
+
+  const userPrompt = `PASSAGE:
 ${body.passage}
 
-Question: ${body.question}
-Correct Answer: ${body.expected}
-Student's Answer: ${body.given} (${body.isCorrect ? "Correct" : "Incorrect"})
+QUESTION: ${body.question}
+CORRECT ANSWER: ${body.expected}
+STUDENT'S ANSWER: ${body.given} (${body.isCorrect ? "Correct" : "Incorrect"})
 
-Explain why this answer is correct and where it matches the passage.`;
+Provide a detailed IELTS tutor explanation with passage evidence.`;
 
   try {
     const res = await fetch(
@@ -56,13 +59,15 @@ Explain why this answer is correct and where it matches the passage.`;
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemPrompt }] },
           contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 512 },
+          generationConfig: { temperature: 0.3, maxOutputTokens: 1024 },
         }),
       },
     );
 
     if (!res.ok) {
-      return NextResponse.json({ explanation: `The correct answer is "${body.expected}" based on the reading passage.` });
+      return NextResponse.json({
+        explanation: `The correct answer is "${body.expected}".`,
+      });
     }
 
     const data = (await res.json()) as {
@@ -71,6 +76,8 @@ Explain why this answer is correct and where it matches the passage.`;
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     return NextResponse.json({ explanation: text || `The correct answer is "${body.expected}".` });
   } catch {
-    return NextResponse.json({ explanation: `The correct answer is "${body.expected}".` });
+    return NextResponse.json({
+      explanation: `The correct answer is "${body.expected}".`,
+    });
   }
 }
