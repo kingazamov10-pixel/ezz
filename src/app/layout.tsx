@@ -91,11 +91,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <footer className="border-t border-slate-200/85 bg-white/50 backdrop-blur-sm mt-16">
           <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <p>© 2026 IELTS Simulator Pro. All rights reserved.</p>
-            <p className="flex items-center gap-2">
-              <span>Powered by Next.js & Google Gemini AI</span>
-              <span>•</span>
-              <span className="text-emerald-600 font-semibold">● Supabase Cloud DB</span>
-            </p>
+            <p>Built for professional IELTS preparation.</p>
           </div>
         </footer>
       </body>
