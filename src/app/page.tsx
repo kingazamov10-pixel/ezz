@@ -9,52 +9,59 @@ export const dynamic = "force-dynamic";
 const SECTIONS = [
   {
     href: "/listening",
-    title: "Listening Section",
-    subtitle: "Audio Conversation & 10 Questions",
+    title: "Listening Module",
+    subtitle: "Audio Conversations & 10 Questions",
     icon: "🎧",
     duration: "~10 min",
     badge: "Section 1",
     description:
-      "Listen to real IELTS-style audio conversations and answer multiple-choice, table completion, and matching questions.",
+      "Practice Cambridge-style audio conversations with synthesized voice, multiple-choice, table completion, and interactive testing.",
     color: "from-sky-500 to-blue-600",
     bgLight: "bg-sky-50 text-sky-700 border-sky-200",
   },
   {
     href: "/reading",
-    title: "Reading Section",
-    subtitle: "Academic Passage & Analysis",
+    title: "Reading Module",
+    subtitle: "Academic Passages & AI Tutor",
     icon: "📖",
     duration: "~15 min",
     badge: "Section 2",
     description:
-      "Read complex academic texts with built-in timer, answering TRUE/FALSE/NOT GIVEN and summary completion tasks.",
+      "Read rigorous academic texts with CBT highlighting, font adjustment, bilingual word translation, and AI tutor explanations.",
     color: "from-emerald-500 to-teal-600",
     bgLight: "bg-emerald-50 text-emerald-700 border-emerald-200",
   },
   {
     href: "/writing",
-    title: "Writing Tasks",
-    subtitle: "Task 1 & Task 2 with AI",
+    title: "Writing Lab",
+    subtitle: "Task 1 & Task 2 with AI Feedback",
     icon: "✍️",
     duration: "60 min",
     badge: "Section 3",
     description:
-      "Draft data summaries and essays with live word count. Receive instant AI examiner feedback across all 4 official criteria.",
+      "Compose essays and data reports with live word counters. Receive detailed band scores across all 4 official IELTS criteria.",
     color: "from-fuchsia-500 to-purple-600",
     bgLight: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
   },
   {
     href: "/speaking",
-    title: "Speaking Test",
-    subtitle: "Parts 1, 2 & 3 with Voice",
+    title: "Speaking Interview",
+    subtitle: "Parts 1, 2 & 3 with Voice Input",
     icon: "🎤",
     duration: "11–14 min",
     badge: "Section 4",
     description:
-      "Record your voice responses or type answers. Get detailed AI band scores on fluency, pronunciation, lexis, and grammar.",
+      "Simulate a live examiner interview using voice speech recognition or typed responses. Get instant fluency and grammar insights.",
     color: "from-amber-500 to-orange-600",
     bgLight: "bg-amber-50 text-amber-700 border-amber-200",
   },
+];
+
+const PILLARS = [
+  { icon: "🎯", title: "Official Band Descriptors", desc: "Calibrated strictly to Cambridge & IDP grading standards (0–9 scale)." },
+  { icon: "⚡", title: "Instant AI Examiner", desc: "Powered by Google Gemini AI for deep linguistic and structural feedback." },
+  { icon: "🛡️", title: "Secure Cloud Storage", desc: "All test history and vocabulary notes are safely tied to your personal account." },
+  { icon: "💻", title: "CBT Exam Experience", desc: "Built with computer-delivered IELTS features: timers, highlighting, & notes." },
 ];
 
 export default async function HomePage() {
@@ -76,57 +83,71 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="space-y-12 pb-12">
+    <div className="space-y-16 pb-16">
       {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-violet-900 to-slate-900 p-8 text-white shadow-2xl sm:p-14">
-        <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
-        <div className="absolute -left-20 -bottom-20 h-80 w-80 rounded-full bg-pink-500/20 blur-3xl pointer-events-none" />
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-violet-950 p-8 text-white shadow-2xl sm:p-14 border border-indigo-900/50">
+        <div className="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none" />
+        <div className="absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-pink-500/15 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-3xl">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur-md border border-white/20 mb-6 shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-4 py-1.5 text-xs font-bold text-indigo-300 backdrop-blur-md border border-indigo-500/30 mb-6 shadow-sm">
             <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-            <span>Official IELTS Band 9.0 Standard Simulator</span>
+            <span>Certified IELTS Academic & General Training Simulator</span>
           </div>
 
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl leading-[1.1]">
-            Master IELTS with{" "}
-            <span className="bg-gradient-to-r from-indigo-300 via-pink-300 to-amber-300 bg-clip-text text-transparent">
-              AI Examiner
-            </span>
+          <h1 className="text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl leading-[1.08]">
+            Achieve Your Target{" "}
+            <span className="bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
+              Band 8.0+
+            </span>{" "}
+            with AI
           </h1>
 
           <p className="mt-6 text-lg text-slate-300 sm:text-xl font-normal leading-relaxed">
-            Practice all 4 official IELTS sections with realistic timed tests, speech synthesis, 
-            voice recognition, and instant professional AI feedback calibrated to official band descriptors.
+            The most advanced computer-delivered IELTS platform. Practice Listening, Reading, Writing, 
+            and Speaking with real-time AI examiner evaluations and personalized feedback.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Link
               href="/listening"
-              className="group inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-600 px-7 py-4 text-sm font-bold text-white shadow-lg shadow-indigo-500/25 transition-all hover:scale-105 hover:shadow-indigo-500/40"
+              className="group inline-flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-4 text-sm font-extrabold text-white shadow-xl shadow-indigo-600/30 transition-all hover:scale-105 hover:shadow-indigo-600/50"
             >
-              <span>Start Full Mock Test</span>
-              <span className="transition-transform group-hover:translate-x-1">→</span>
+              <span>Start Free Practice Test</span>
+              <span className="transition-transform group-hover:translate-x-1.5">→</span>
             </Link>
-            <Link
-              href="/writing"
-              className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-7 py-4 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/30"
-            >
-              ✍️ Try AI Writing Lab
-            </Link>
+            {!user && (
+              <Link
+                href="/auth/login"
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-7 py-4 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/30"
+              >
+                🔐 Sign In to Save Progress
+              </Link>
+            )}
           </div>
         </div>
+      </section>
+
+      {/* Trust Pillars */}
+      <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {PILLARS.map((p, idx) => (
+          <div key={idx} className="glass-card rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-3">
+            <span className="text-3xl block">{p.icon}</span>
+            <h3 className="text-base font-extrabold text-slate-900">{p.title}</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">{p.desc}</p>
+          </div>
+        ))}
       </section>
 
       {/* Sections Grid */}
       <section className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-widest text-indigo-600 font-bold">Comprehensive Practice</p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Choose a Test Section</h2>
+            <p className="text-xs uppercase tracking-widest text-indigo-600 font-extrabold">Comprehensive Curriculum</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">Four Official Test Modules</h2>
           </div>
           <p className="text-sm text-slate-500 max-w-md">
-            All sections follow official Cambridge IELTS format with dynamic question sets manageable via the Admin panel.
+            Simulate exact exam conditions with timed interfaces and comprehensive performance analytics.
           </p>
         </div>
 
@@ -157,13 +178,13 @@ export default async function HomePage() {
                     →
                   </span>
                 </div>
-                <p className="mt-4 text-sm font-medium text-slate-700">{s.subtitle}</p>
+                <p className="mt-4 text-sm font-semibold text-slate-700">{s.subtitle}</p>
                 <p className="mt-2 text-sm text-slate-500 leading-relaxed">{s.description}</p>
               </div>
 
-              <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 text-xs font-semibold text-slate-400">
-                <span className="flex items-center gap-1">⏱ {s.duration}</span>
-                <span className="text-indigo-600 group-hover:underline">Start practice session →</span>
+              <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 text-xs font-bold text-slate-400">
+                <span className="flex items-center gap-1">⏱ Estimated {s.duration}</span>
+                <span className="text-indigo-600 group-hover:underline">Start module session →</span>
               </div>
             </Link>
           ))}
@@ -175,16 +196,16 @@ export default async function HomePage() {
         <section className="space-y-4 pt-4">
           <div className="flex items-baseline justify-between">
             <div>
-              <p className="text-xs uppercase tracking-widest text-indigo-600 font-bold">Your Progress</p>
-              <h2 className="text-2xl font-bold text-slate-900 mt-1">Your Recent Attempts</h2>
+              <p className="text-xs uppercase tracking-widest text-indigo-600 font-extrabold">Personal Dashboard</p>
+              <h2 className="text-2xl font-black text-slate-900 mt-1">Your Recent Test Attempts</h2>
             </div>
-            <Link href="/results" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline">
-              View all results →
+            <Link href="/results" className="text-sm font-bold text-indigo-600 hover:text-indigo-700 hover:underline">
+              View full report card →
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {userRecent.map((a) => (
-              <div key={a.id} className="glass-card rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+              <div key={a.id} className="glass-card rounded-2xl p-5 shadow-sm flex flex-col justify-between border border-slate-200">
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
@@ -194,13 +215,13 @@ export default async function HomePage() {
                       {new Date(a.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm font-semibold text-slate-900 line-clamp-2">
+                  <p className="mt-3 text-sm font-bold text-slate-900 line-clamp-2">
                     {a.taskLabel}
                   </p>
                 </div>
                 <div className="mt-4 flex items-baseline justify-between border-t border-slate-100 pt-3">
-                  <span className="text-xs text-slate-500">Band Score</span>
-                  <span className="text-2xl font-extrabold text-indigo-600">
+                  <span className="text-xs text-slate-500 font-medium">Band Score</span>
+                  <span className="text-2xl font-black text-indigo-600">
                     {a.bandScore.toFixed(1)}
                   </span>
                 </div>
